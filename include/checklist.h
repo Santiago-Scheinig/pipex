@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 12:08:42 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/19 12:39:13 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/24 16:45:00 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,3 +67,25 @@
  * the program referred, argv[0] = pathname;
  * envp = main envp;
  */
+
+
+/**
+ * INFINITE CMD LIST
+ * 
+ * yes
+ * 
+ * cat (without input)
+ *
+ * while true; do ...; done
+ *
+ * sleep infinity (bash 5+)
+ *
+ * tail -f (following a file)
+ *
+ * ping (without count -c flag/argument)
+ *
+ * nc -lk (netcat listening mode)
+ * 
+ * watch (without exit condition)
+ * 
+ */ 
