@@ -6,67 +6,61 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 11:40:12 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/24 18:25:31 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/26 21:08:37 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
 
-int		ft_forcend(t_pipex env, char **path, char *ft)
+/**
+ * 
+ * FINISHED
+ * 
+ */
+int	ft_forcend(t_pipex *env, char **path, char *ft_error)
 {
 	int	i;
 
-	if (env.cmd)
+	if (env->cmd)
 	{
 		i = -1;
-		while (env.cmd[++i])
+		while (env->cmd[++i])
 		{
-			if (env.cmd[i]->args)
-				ft_split_free(env.cmd[i]->args);
-			if (env.cmd[i]->pathname)
-				free(env.cmd[i]->pathname);
-			free(env.cmd[i]);
+			if (env->cmd[i]->args)
+				ft_split_free(env->cmd[i]->args);
+			if (env->cmd[i]->pathname)
+				free(env->cmd[i]->pathname);
+			free(env->cmd[i]);
 		}
-		free(env.cmd);
+		free(env->cmd);
 	}
 	if (path)
 		ft_split_free(path);
-	if (ft)
+	if (ft_error)
 	{
-		perror(ft);
+		perror(ft_error);
 		return (-1);
 	}
 	return (0);
 }
 
-/**
- * 
- * FINISHED
- * 
- */
-char	*ft_get_cmd_path(const char *cmd, const char **path)
+static int	ft_pipe(t_pipex *env, char **argv, char **envp, char **path)
 {
-	char	*cmd_pathname;
-	char	*tmp;
-	int		i;
-	
+	int	i;
+
 	i = -1;
-	if (ft_strchr(cmd, '/'))
+	while (++i < env->cmd_count)
 	{
-		if (!access(cmd, X_OK))
-			return (ft_strdup(cmd));
-		return (NULL);
+		env->cmd[i] = ft_new_cmd(argv[i + 2], (const char **) path);
+		if (!env->cmd[i])
+			return (ft_forcend(env, path, "Ft_new_cmd"));
 	}
-	while (path[++i])
-	{
-		tmp = ft_strjoin(path[i], "/");
-		cmd_pathname = ft_strjoin(tmp, cmd);
-		free(tmp);
-		if (!access(cmd_pathname, X_OK))
-			return (cmd_pathname);
-		free(cmd_pathname);
-	}
-	return (NULL);
+	env->infile = argv[1];
+	env->outfile = argv[4];
+	if (access(env->infile, R_OK | F_OK))
+		return (ft_forcend(env, path, "Access"));
+	ft_split_free(path);
+	return (ft_do_pipe(env, envp));
 }
 
 /**
@@ -74,152 +68,17 @@ char	*ft_get_cmd_path(const char *cmd, const char **path)
  * FINISHED
  * 
  */
-char	**ft_check_path(const char **envp)
-{
-	int	i;
-
-	i = -1;
-	while (envp[++i])
-		if (!ft_strncmp("PATH=", envp[i], 5))
-			return (ft_split(&envp[i][5], ':'));
-	return (NULL);
-}
-
-t_cmd	*ft_new_cmd(const char *cmd, const char **path)
-{
-	t_cmd *new;
-
-	new = malloc(sizeof(t_cmd));
-	new->args = ft_split(cmd, ' ');
-	if (!new->args)
-		return (NULL);
-	new->pathname = ft_get_cmd_path(new->args[0], path);
-	if (!new->pathname)
-	{
-		ft_split_free(new->args);
-		free(new);
-		return (NULL);
-	}
-	return (new);
-}
-
-int	ft_isinfinite(char **args)
-{
-	int	ans;
-	
-	ans = 0;
-	if (!ft_strncmp(args[0], "yes", 4))
-		ans = 1;
-	if (!ft_strncmp(args[0], "cat", 4) && !args[1])
-		ans = 1;
-	if (!ft_strncmp(args[0], "while", 6) && !ft_strncmp(args[1], "true", 5))
-		ans = 1;
-	if (!ft_strncmp(args[0], "tail", 5) 
-		&& args[1] && !ft_strncmp(args[1], "-f", 3))
-		ans = 1;
-	if (!ft_strncmp(args[0], "ping", 5) 
-		&& args[1] && ft_strncmp(args[1], "-c", 3))
-		ans = 1;
-	if (!ft_strncmp(args[0], "nc", 3) && !ft_strncmp(args[1], "-lk", 4))
-		ans = 1;
-	if (!ft_strncmp(args[0], "watch", 6))
-		ans = 1;
-	return (ans);
-}
-
-int	ft_waitfor_childs(t_pipex *env, int exit_status)
-{
-	int	i;
-
-	i = -1;
-	while (++i < env->cmd_count)
-		if (env->waitpid_list[i] != -1)
-			if (waitpid(env->waitpid_list[i], NULL, 0) == -1)
-				perror("Waitpid");//forcend?
-	free(env->waitpid_list);
-	if (exit_status == EXIT_FAILURE)
-		return (ft_forcend(*env, NULL, "Pipe"));
-	return (ft_forcend(*env, NULL, NULL));
-}
-
-int ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
-{
-	static int	i;
-	
-	if (ft_isinfinite(env->cmd[i]->args) && i != (env->cmd_count - 1))
-		env->waitpid_list[i] = -1;
-	else
-		env->waitpid_list[i] = fork();
-	if (!env->waitpid_list[i])
-	{
-		if (dup2(infd, STDIN_FILENO) == -1
-		|| dup2(pipefd[1], STDOUT_FILENO) == -1)
-		{
-			perror("Dup2");
-			exit(-1);
-		}
-		if (execve(env->cmd[i]->pathname, env->cmd[i]->args, envp) == -1)
-		{
-			perror("Execve");
-			exit(-1);
-		}
-	}
-	i++;
-	close(infd);
-	return(pipefd[0]);
-}
-
-int	ft_do_pipe(t_pipex *env, char **envp)
-{	
-	int	i;
-	int	infd;
-	int pipefd[2];
-	
-	i = -1;
-	env->waitpid_list = malloc((env->cmd_count) * sizeof(pid_t));
-	if (!env->waitpid_list)
-		return (-1);
-	while (++i < env->cmd_count)
-	{
-		if (!i)
-			infd = open(env->infile, O_RDONLY);
-		if (infd < 0 || pipe(pipefd) == -1)
-			return (ft_waitfor_childs(env, EXIT_FAILURE));
-		if (i == env->cmd_count - 1)
-		{
-			close(pipefd[1]);
-			pipefd[1] = open(env->outfile, O_WRONLY);
-		}
-		infd = ft_do_fork(env, infd, pipefd, envp);
-		close(pipefd[1]);
-	}
-	return (ft_waitfor_childs(env, EXIT_SUCCESS));
-}
-
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex		env;
 	char		**path;
-	int			i;
 
+	errno = ENOEXEC;
 	path = ft_check_path((const char **) envp);
 	env.cmd_count = 2;
 	env.cmd = malloc((env.cmd_count + 1) * sizeof(t_cmd *));
 	if (argc != 5 || !path || !env.cmd)
-		return (ft_forcend(env, path, "Main"));
-	i = -1;
+		return (ft_forcend(&env, path, "Main"));
 	env.cmd[env.cmd_count] = NULL;
-	while (++i < env.cmd_count)
-	{
-		env.cmd[i] = ft_new_cmd(argv[i + 2], (const char **) path);
-		if (!env.cmd[i])
-			return (ft_forcend(env, path, "Ft_new_cmd"));
-	}
-	env.infile = argv[1];
-	env.outfile = argv[4];
-	if (access(env.infile, R_OK | F_OK)
-		|| access(env.outfile, W_OK | F_OK))
-		return (ft_forcend(env, path, "Access"));
-	ft_split_free(path);
-	return (ft_do_pipe(&env, envp));
+	return (ft_pipe(&env, argv, envp, path));
 }

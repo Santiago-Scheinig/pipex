@@ -2,9 +2,10 @@
 
 MAIN		=	$(SRCDIR)pipex.c	\
 
-SRC			=	$(SRCDIR)utils.c	\
+SRC			=	$(SRCDIR)pipex_pipe_utils.c	\
+				$(SRCDIR)pipex_path_utils.c	\
 
-BSRC		=	$(SRCDIR)pipex_bonus.c												-#
+BSRC		=	$(SRCDIR)pipex_bonus.c
 
 SRCDIR		=	src/
 OBJDIR		=	obj/
@@ -17,10 +18,10 @@ LIBFT		=	libft.a
 LIBEXE		=	pipex.a
 
 NAME		=	pipex
-BONUS		=	#- The name of the bonus final program.								-#
+BONUS		=	pipex_bonus
 
 CC			=	cc
-CFLAGS		=	-Wall -Wextra -Werror $(INCDIR) -g 
+CFLAGS		=	-Wall -Wextra -Werror $(INCDIR) -g
 
 INFILE		=	#- Text to be added on infile.txt. Ifndef, file starts with '\n'.
 
@@ -45,11 +46,10 @@ COLOUR_END		=	\033[0m
 
 .PHONY: all msg clear clean fclean re
 
-all: inoutfile $(NAME)
+all: infile $(NAME)
 
-inoutfile:
-	@echo $(INFILE) > infile.txt
-	@touch outfile.txt
+infile:
+	@echo $(INFILE) > infile
 
 #- Creates the libft.a library.														-#
 $(LIBFT):
@@ -76,7 +76,7 @@ $(OBJDIR)%.o: $(SRCDIR)%.c
 	@echo "$(COLOUR_CIAN)\t-$@ created.$(COLOUR_END)"
 #
 #- Compiles the main object with the program library into the final executable.		-#
-$(NAME): $(LIBEXE)
+$(NAME): $(SRC) $(LIBEXE)
 	@$(CC) $(CFLAGS) -o $(NAME) $(MOBJ) $(LIBEXE)
 	@echo "\n$(COLOUR_GREEN)$(CNAME) - Program ready.$(COLOUR_END)"
 #
@@ -104,8 +104,7 @@ fclean:
 	@rm -rf $(OBJDIR)
 	@echo "$(COLOUR_RED)$(CNAME) - Object cleaning complete.\n$(COLOUR_END)"
 	@rm -f $(NAME)
-	@rm -f infile.txt
-	@rm -f outfile.txt
+	@rm -f infile
 	@rm -f $(BONUS)
 	@rm -f $(LIBEXE)
 	@echo "$(COLOUR_RED)$(CNAME) - Files removed.\n$(COLOUR_END)"
