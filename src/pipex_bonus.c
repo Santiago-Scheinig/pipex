@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 13:06:14 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/26 21:07:15 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/27 15:30:25 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static int	ft_get_cmd_count(char **argv)
 	i = 0;
 	while (argv[i])
 		i++;
-	if (!ft_strncmp(argv[1], "here\\_doc\0", 10))
+	if (!ft_strncmp(argv[1], "here_doc\0", 10))
 		return (i - 4);
 	return (i - 3);
 }
@@ -75,7 +75,7 @@ static int	ft_here_doc(t_pipex *env, char **argv, char **envp, char **path)
 	env->infile = NULL;
 	env->outfile = argv[env->cmd_count + 3];
 	ft_split_free(path);
-	return (ft_do_pipe(env, envp));
+	return (ft_do_here_doc(env, envp, argv[2]));
 }
 
 static int	ft_pipe(t_pipex *env, char **argv, char **envp, char **path)
@@ -114,7 +114,7 @@ int	main(int argc, char **argv, char **envp)
 	if (argc < 5 || !path || !env.cmd)
 		return (ft_forcend(&env, path, "Main"));
 	env.cmd[env.cmd_count] = NULL;
-	if (!ft_strncmp(argv[1], "here\\_doc\0", 10))
+	if (!ft_strncmp(argv[1], "here_doc\0", 10))
 		return (ft_here_doc(&env, argv, envp, path));
 	return (ft_pipe(&env, argv, envp, path));
 }

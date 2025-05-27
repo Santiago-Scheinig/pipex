@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_pipe_utils.c                                 :+:      :+:    :+:   */
+/*   pipex_here_doc_utils_bonus.c                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/26 16:00:26 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 14:44:39 by sscheini         ###   ########.fr       */
+/*   Created: 2025/05/27 14:38:00 by sscheini          #+#    #+#             */
+/*   Updated: 2025/05/27 16:54:01 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/pipex.h"
+#include "../include/pipex_bonus.h"
 
 /**
  * 
@@ -65,12 +65,39 @@ static int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
 	return (pipefd[0]);
 }
 
+static int	ft_read_to_limitator(char *limitator)
+{
+	char	*line;
+	int		pipefd[2];
+	int		limitator_len;
+
+	if (pipe(pipefd) == -1)
+		return (-1);
+	while (1)
+	{
+		line = get_next_line(0);
+		if (!line)
+			break ;
+		limitator_len = ft_strlen(limitator);
+		if (!ft_strncmp(line, limitator, limitator_len))
+		{
+			free(line);
+			break ;
+		}
+		write(pipefd[1], line, ft_strlen(line));
+		free(line);
+	}
+	close(pipefd[1]);
+	get_next_line(-1);
+	return (pipefd[0]);
+}
+
 /**
  * 
  * FINISHED
  * 
  */
-int	ft_do_pipe(t_pipex *env, char **envp)
+int	ft_do_here_doc(t_pipex *env, char **envp, char *limitator)
 {
 	int	i;
 	int	infd;
@@ -82,14 +109,14 @@ int	ft_do_pipe(t_pipex *env, char **envp)
 		return (-1);
 	while (++i < env->cmd_count)
 	{
-		if (!i && env->infile)
-			infd = open(env->infile, O_RDONLY);
+		if (!i && !env->infile)
+			infd = ft_read_to_limitator(limitator);
 		if (infd < 0 || pipe(pipefd) == -1)
 			return (ft_waitfor_childs(env, EXIT_FAILURE));
 		if (i == env->cmd_count - 1)
 		{
 			close(pipefd[1]);
-			pipefd[1] = open(env->outfile, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+			pipefd[1] = open(env->outfile, O_CREAT | O_APPEND | O_WRONLY, 420);
 			if (pipefd[1] < 0)
 				return (ft_waitfor_childs(env, EXIT_FAILURE));
 		}
