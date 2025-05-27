@@ -6,15 +6,18 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 20:49:13 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/19 17:15:55 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/27 22:12:11 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
 /**
- * Returns a CHAR * to the last ocurrance of 'c' inside 's'.
- * - Return NULL in case no ocurrence is found.
+ * Searches for the last ocurrance of a character on a STRING.
+ * @param s The STRING where to find the ocurrance.
+ * @param c The character to be found.
+ * @return A pointer to a position of the STRING with the last 
+ * character ocurrance. If no ocurrance is found, returns NULL. 
  */
 char	*ft_strrchr(const char *s, int c)
 {

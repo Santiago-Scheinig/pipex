@@ -6,16 +6,17 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 13:06:17 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/26 21:07:27 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/27 18:06:53 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/pipex.h"
+#include "pipex.h"
 
 /**
- * 
- * FINISHED
- * 
+ * Verifies the existence of path enviroment.
+ * @param envp The main enviroment where to search for the path enviroment.
+ * @return If path exists, returns a CHAR ** with each definitive path specified
+ * on it (divided by ':'); If not, returns NULL.
  */
 char	**ft_check_path(const char **envp)
 {
@@ -29,9 +30,11 @@ char	**ft_check_path(const char **envp)
 }
 
 /**
- * 
- * FINISHED
- * 
+ * Creates and allocates a STRING with the definitive path to a cmd binary.
+ * @param cmd The name of the command binary to find.
+ * @param path The enviroment path where to search the command binary.
+ * @return A pointer to the new STRING or NULL if the allocation failed or
+ * the cmd can't be access or found as binary on path.
  */
 static char	*ft_get_cmd_path(const char *cmd, const char **path)
 {
@@ -59,9 +62,11 @@ static char	*ft_get_cmd_path(const char *cmd, const char **path)
 }
 
 /**
- * 
- * FINISHED
- * 
+ * Creates and allocates a CMD strucure.
+ * @param cmd The name of the command.
+ * @param path The enviroment path where to search the command binary.
+ * @return A pointer to the new CMD structure or NULL if the allocation
+ * failed or the cmd can't be found as binary on path.
  */
 t_cmd	*ft_new_cmd(const char *cmd, const char **path)
 {

@@ -7,7 +7,7 @@ SRC			=	$(SRCDIR)pipex_pipe_utils.c	\
 
 BMAIN		=	$(SRCDIR)pipex_bonus.c	\
 
-BSRC		=	$(SRCDIR)pipex_here_doc_utils_bonus.c	\
+BSRC		=	$(SRCDIR)pipex_utils_bonus.c	\
 
 SRCDIR		=	src/
 OBJDIR		=	obj/

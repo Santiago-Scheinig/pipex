@@ -1,70 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_here_doc_utils_bonus.c                       :+:      :+:    :+:   */
+/*   pipex_utils_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:38:00 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 16:54:01 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/27 18:11:41 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/pipex_bonus.h"
+#include "pipex_bonus.h"
 
 /**
- * 
- * FINISHED
- * 
+ * Reads from the STDIN until the specified LIMITATOR is written next to a
+ * line jump '\n', writing everything that is sent into a new pipefd[1].
+ * @param limitator The string that will work as LIMITATOR.
+ * @return Returns the pipefd[0] from where to read everything that was 
+ * written on pipefd[1];
+ * @note If the reading is interrupted before the LIMITATOR, the information
+ * written on pipefd[0] will be sent to the next cmd and an error msg is printed 
+ * on STDERR specifying the interruption issue.
  */
-static int	ft_waitfor_childs(t_pipex *env, int exit_status)
-{
-	int	i;
-
-	i = -1;
-	while (++i < env->cmd_count)
-		if (env->waitpid_list[i] > 0)
-			if (waitpid(env->waitpid_list[i], NULL, 0) == -1)
-				return (ft_forcend(env, NULL, "Waitpid"));
-	free(env->waitpid_list);
-	if (exit_status == EXIT_FAILURE)
-		return (ft_forcend(env, NULL, "Pipe"));
-	return (ft_forcend(env, NULL, NULL));
-}
-
-/**
- * 
- * FINISHED
- * 
- */
-static int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
-{
-	static int	i;
-
-	env->waitpid_list[i] = fork();
-	if (!env->waitpid_list[i])
-	{
-		if (dup2(infd, STDIN_FILENO) == -1
-			|| dup2(pipefd[1], STDOUT_FILENO) == -1)
-		{
-			perror("Dup2");
-			exit(-1);
-		}
-		close(infd);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		if (execve(env->cmd[i]->pathname, env->cmd[i]->args, envp) == -1)
-		{
-			perror("Execve");
-			exit(-1);
-		}
-	}
-	i++;
-	close(infd);
-	close(pipefd[1]);
-	return (pipefd[0]);
-}
-
 static int	ft_read_to_limitator(char *limitator)
 {
 	char	*line;
@@ -88,14 +45,18 @@ static int	ft_read_to_limitator(char *limitator)
 		free(line);
 	}
 	close(pipefd[1]);
-	get_next_line(-1);
 	return (pipefd[0]);
 }
 
 /**
- * 
- * FINISHED
- * 
+ * Executes and pipes every command specified on the program enviroment,
+ * but the first command will read from the STDIN instead of the infile 
+ * (until the LIMITATOR is writen).
+ * @param env The main enviroment pipex structure.
+ * @param envp The main enviroment path.
+ * @return Returns 0 on a successful execution and -1 in case of error.
+ * @note Regardless of the return, it will wait for any child process
+ * created during the command executions.
  */
 int	ft_do_here_doc(t_pipex *env, char **envp, char *limitator)
 {
@@ -109,7 +70,7 @@ int	ft_do_here_doc(t_pipex *env, char **envp, char *limitator)
 		return (-1);
 	while (++i < env->cmd_count)
 	{
-		if (!i && !env->infile)
+		if (!i)
 			infd = ft_read_to_limitator(limitator);
 		if (infd < 0 || pipe(pipefd) == -1)
 			return (ft_waitfor_childs(env, EXIT_FAILURE));

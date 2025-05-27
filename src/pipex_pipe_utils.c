@@ -6,18 +6,22 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 16:00:26 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 14:44:39 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/27 18:13:46 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/pipex.h"
+#include "pipex.h"
 
 /**
- * 
- * FINISHED
- * 
+ * Waits for every child process executed to finish before exiting the
+ * pipex program.
+ * @param env The main enviroment pipex structure.
+ * @param exit_status The status which the pipex program will exit.
+ * @return If exit_error is false returns 0; else will return -1;
+ * @note If any waitpid fails to execute, the program will exit by
+ * force and non waited childs will remain as zombie.
  */
-static int	ft_waitfor_childs(t_pipex *env, int exit_status)
+int	ft_waitfor_childs(t_pipex *env, int exit_error)
 {
 	int	i;
 
@@ -27,17 +31,25 @@ static int	ft_waitfor_childs(t_pipex *env, int exit_status)
 			if (waitpid(env->waitpid_list[i], NULL, 0) == -1)
 				return (ft_forcend(env, NULL, "Waitpid"));
 	free(env->waitpid_list);
-	if (exit_status == EXIT_FAILURE)
+	if (exit_error == EXIT_FAILURE)
 		return (ft_forcend(env, NULL, "Pipe"));
 	return (ft_forcend(env, NULL, NULL));
 }
 
 /**
- * 
- * FINISHED
- * 
+ * Creates a child process to execute a specifc command.
+ * @param env The main enviroment pipex structure.
+ * @param infd The fd to read from.
+ * @param pipefd The pipe fds, [0] to read and [1] to write from.
+ * @param envp The main enviroment path.
+ * @return Returns the pipefd[0], where the next pipe should read from.
+ * @note Every fd is closed in the father and the child process, 
+ * excepting the reading pipefd[0] on the father process (since this will 
+ * be the return value). This way, if any piped cmd is infinite, it will 
+ * SEGPIPE once the dup2 of the infd is no longer being read by the child
+ * process.
  */
-static int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
+int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
 {
 	static int	i;
 
@@ -66,9 +78,12 @@ static int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
 }
 
 /**
- * 
- * FINISHED
- * 
+ * Executes and pipes every command specified on the program enviroment.
+ * @param env The main enviroment pipex structure.
+ * @param envp The main enviroment path.
+ * @return Returns 0 on a successful execution and -1 in case of error.
+ * @note Regardless of the return, it will wait for any child process
+ * created during the command executions.
  */
 int	ft_do_pipe(t_pipex *env, char **envp)
 {

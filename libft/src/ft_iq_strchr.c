@@ -6,18 +6,20 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 18:15:28 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/26 21:18:27 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/05/27 20:54:21 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
 /**
- * Returns a CHAR * to the first ocurrance of 'c' inside 's'.
- * - Return NULL in case no ocurrance is found.
- * 
- * @note ignores c coincidences in single and double quotes 
- * (if they open and close).
+ * Searches for the first ocurrance of a character on a STRING.
+ * @param s The STRING where to find the ocurrance.
+ * @param c The character to be found.
+ * @return A pointer to a position of the STRING with the first 
+ * character ocurrance. If no ocurrance is found, returns NULL. 
+ * @note This function will ignore any C coincidences that happen 
+ * to be inside of single and double quotes (as long they open and close).
  */
 char	*ft_iq_strchr(char const *s, char c)
 {
