@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 11:35:34 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 18:22:02 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/02 10:50:37 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ int		ft_forcend(t_pipex *env, char **path, char *ft_error);
  * SEGPIPE once the dup2 of the infd is no longer being read by the child
  * process.
  */
-int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp);
+int		ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp);
 
 /**
  * Executes and pipes every command specified on the program enviroment.
@@ -79,7 +79,7 @@ int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp);
  * @note Regardless of the return, it will wait for any child process
  * created during the command executions.
  */
-int	ft_do_pipe(t_pipex *env, char **envp);
+int		ft_do_pipe(t_pipex *env, char **envp);
 
 /**
  * Waits for every child process executed to finish before exiting the
@@ -90,7 +90,7 @@ int	ft_do_pipe(t_pipex *env, char **envp);
  * @note If any waitpid fails to execute, the program will exit by
  * force and non waited childs will remain as zombie.
  */
-int	ft_waitfor_childs(t_pipex *env, int exit_error);
+int		ft_waitfor_childs(t_pipex *env, int exit_error);
 
 /**
  * Verifies the existence of path enviroment.

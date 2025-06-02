@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 13:06:14 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 17:24:34 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/02 10:50:14 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,8 @@ static int	ft_pipe(t_pipex *env, char **argv, char **envp, char **path)
  * extra functionalities:
  * 
  *	- Manage multiple pipes.
- *	- Accepts << and >> operators, when here\_doc is specified on the main argument as argv[1]; 
+ *	- Accepts << and >> operators, when here\_doc is specified on the main
+ *	argument as argv[1]; 
  */
 int	main(int argc, char **argv, char **envp)
 {
