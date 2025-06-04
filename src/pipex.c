@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 11:40:12 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 18:13:42 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/04 14:49:59 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int	ft_forcend(t_pipex *env, char **path, char *ft_error)
 	if (ft_error)
 	{
 		perror(ft_error);
-		return (-1);
+		return (1);
 	}
 	return (0);
 }
@@ -70,9 +70,9 @@ static int	ft_pipe(t_pipex *env, char **argv, char **envp, char **path)
 			return (ft_forcend(env, path, "Ft_new_cmd"));
 	}
 	env->infile = argv[1];
-	env->outfile = argv[4];
-	if (access(env->infile, R_OK | F_OK))
-		return (ft_forcend(env, path, "Access"));
+	env->outfile = argv[env->cmd_count + 2];
+	if (access(env->infile, R_OK))
+		env->infile = NULL;
 	ft_split_free(path);
 	return (ft_do_pipe(env, envp));
 }
@@ -87,13 +87,21 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_pipex		env;
 	char		**path;
+	int			i;
 
+	i = -1;
 	errno = ENOEXEC;
+	env.cmd = NULL;
+	if (argc < 2)
+		return (ft_forcend(&env, NULL, "Main"));
+	env.cmd_count = ft_get_cmd_count(argv);
+	if (env.cmd_count < 2)
+		return (ft_forcend(&env, NULL, "Main"));
 	path = ft_check_path((const char **) envp);
-	env.cmd_count = 2;
 	env.cmd = malloc((env.cmd_count + 1) * sizeof(t_cmd *));
-	if (argc != 5 || !path || !env.cmd)
+	if (!env.cmd || !path)
 		return (ft_forcend(&env, path, "Main"));
-	env.cmd[env.cmd_count] = NULL;
+	while (++i < env.cmd_count)
+		env.cmd[env.cmd_count] = NULL;
 	return (ft_pipe(&env, argv, envp, path));
 }

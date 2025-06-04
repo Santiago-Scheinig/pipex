@@ -6,11 +6,11 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 16:00:26 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 18:13:46 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/04 14:16:17 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "../include/pipex.h"
 
 /**
  * Waits for every child process executed to finish before exiting the
@@ -21,15 +21,22 @@
  * @note If any waitpid fails to execute, the program will exit by
  * force and non waited childs will remain as zombie.
  */
-int	ft_waitfor_childs(t_pipex *env, int exit_error)
+int	ft_waitfor_childs(t_pipex *env, int exit_error)//error to waitpid (*int)
 {
 	int	i;
 
 	i = -1;
 	while (++i < env->cmd_count)
+	{
 		if (env->waitpid_list[i] > 0)
+		{
 			if (waitpid(env->waitpid_list[i], NULL, 0) == -1)
+			{
+				free(env->waitpid_list);
 				return (ft_forcend(env, NULL, "Waitpid"));
+			}
+		}
+	}
 	free(env->waitpid_list);
 	if (exit_error == EXIT_FAILURE)
 		return (ft_forcend(env, NULL, "Pipe"));
@@ -54,25 +61,20 @@ int	ft_do_fork(t_pipex *env, int infd, int pipefd[2], char **envp)
 	static int	i;
 
 	env->waitpid_list[i] = fork();
-	if (!env->waitpid_list[i])
+	if (!env->waitpid_list[i] && !(infd < 0))
 	{
 		if (dup2(infd, STDIN_FILENO) == -1
 			|| dup2(pipefd[1], STDOUT_FILENO) == -1)
-		{
 			perror("Dup2");
-			exit(-1);
-		}
 		close(infd);
 		close(pipefd[0]);
 		close(pipefd[1]);
 		if (execve(env->cmd[i]->pathname, env->cmd[i]->args, envp) == -1)
-		{
 			perror("Execve");
-			exit(-1);
-		}
 	}
 	i++;
-	close(infd);
+	if (!(infd < 0))
+		close(infd);
 	close(pipefd[1]);
 	return (pipefd[0]);
 }
@@ -92,6 +94,7 @@ int	ft_do_pipe(t_pipex *env, char **envp)
 	int	pipefd[2];
 
 	i = -1;
+	infd = -1;
 	env->waitpid_list = ft_calloc((env->cmd_count), sizeof(pid_t));
 	if (!env->waitpid_list)
 		return (-1);
@@ -99,7 +102,7 @@ int	ft_do_pipe(t_pipex *env, char **envp)
 	{
 		if (!i && env->infile)
 			infd = open(env->infile, O_RDONLY);
-		if (infd < 0 || pipe(pipefd) == -1)
+		if (pipe(pipefd) == -1)
 			return (ft_waitfor_childs(env, EXIT_FAILURE));
 		if (i == env->cmd_count - 1)
 		{

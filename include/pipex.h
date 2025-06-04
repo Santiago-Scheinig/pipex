@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 11:35:34 by sscheini          #+#    #+#             */
-/*   Updated: 2025/06/02 10:50:37 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/04 12:06:39 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,5 +108,12 @@ char	**ft_check_path(const char **envp);
  * failed or the cmd can't be found as binary on path.
  */
 t_cmd	*ft_new_cmd(const char *cmd, const char **path);
+
+/**
+ * Returns the amount of comands on the main arguments, following the format
+ * specified for pipex.
+ * @param argv The main arguments.
+ */
+int		ft_get_cmd_count(char **argv);
 
 #endif

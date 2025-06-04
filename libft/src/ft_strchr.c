@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 20:21:20 by sscheini          #+#    #+#             */
-/*   Updated: 2025/05/27 21:50:56 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/04 13:14:59 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ char	*ft_strchr(const char *s, int c)
 	size_t	i;
 	char	c_c;
 
+	if (!s)
+		return (NULL);
 	i = 0;
 	c_c = (char) c;
 	while (s[i])
