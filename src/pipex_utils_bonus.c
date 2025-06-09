@@ -6,7 +6,7 @@
 /*   By: sscheini <sscheini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:38:00 by sscheini          #+#    #+#             */
-/*   Updated: 2025/06/04 14:39:50 by sscheini         ###   ########.fr       */
+/*   Updated: 2025/06/09 15:01:46 by sscheini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ static int	ft_read_to_limitator(char *limitator)
 	while (1)
 	{
 		line = get_next_line(0);
-		if (!line)
-			break ;
 		limitator_len = ft_strlen(limitator);
 		if (line && !ft_strncmp(line, limitator, limitator_len))
 		{
